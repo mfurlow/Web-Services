@@ -149,6 +149,10 @@
       <Project>{8074005f-5cd8-416f-b623-a9cee07271ec}</Project>
       <Name>Eventtual_Event_Finder_DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Eventual.Model\Eventual.Model.csproj">
+      <Project>{ca18aedb-7a38-48a8-873d-4d98797eaddf}</Project>
+      <Name>Eventual.Model</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

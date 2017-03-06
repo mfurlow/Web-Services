@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventtual_Event_Finder_DAL"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventual_WebAPI", "Eventual_WebAPI\Eventual_WebAPI.csproj", "{21D75BA0-5548-480C-B797-2DB4B6D99849}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eventual.Model", "Eventual.Model\Eventual.Model.csproj", "{CA18AEDB-7A38-48A8-873D-4D98797EADDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{21D75BA0-5548-480C-B797-2DB4B6D99849}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21D75BA0-5548-480C-B797-2DB4B6D99849}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21D75BA0-5548-480C-B797-2DB4B6D99849}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA18AEDB-7A38-48A8-873D-4D98797EADDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA18AEDB-7A38-48A8-873D-4D98797EADDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA18AEDB-7A38-48A8-873D-4D98797EADDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA18AEDB-7A38-48A8-873D-4D98797EADDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
