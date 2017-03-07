@@ -122,6 +122,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="ConvertModels\ConvertEntityToModel.cs" />
+    <Compile Include="ConvertModels\ConvertModelToEntity.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -145,9 +147,13 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Eventtual_Event_Finder\Eventtual_Event_Finder_DAL.csproj">
-      <Project>{8074005f-5cd8-416f-b623-a9cee07271ec}</Project>
-      <Name>Eventtual_Event_Finder_DAL</Name>
+    <ProjectReference Include="..\Eventual.DAL\Eventual.DAL.csproj">
+      <Project>{b949d5a9-b687-493f-877a-503fe69c4517}</Project>
+      <Name>Eventual.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Eventual.Model\Eventual.Model.csproj">
+      <Project>{ca18aedb-7a38-48a8-873d-4d98797eaddf}</Project>
+      <Name>Eventual.Model</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
