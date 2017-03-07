@@ -84,8 +84,8 @@ namespace Eventual_WebAPI.ConvertModels
                 UserID = savedEvent.UserID,
                 EventID = savedEvent.EventID,
                 DateOfSavingEvent = savedEvent.DateOfSavingEvent,
-                Event = EventEntityToEventModel(eventRegistration.Event),
-                User = UserEntityToUserModel(eventRegistration.User)
+                Event = EventEntityToEventModel(savedEvent.Event),
+                User = UserEntityToUserModel(savedEvent.User)
             };
 
             return result;
