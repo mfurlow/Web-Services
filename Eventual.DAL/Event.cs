@@ -7,39 +7,36 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Eventtual_Event_Finder
+namespace Eventual.DAL
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class User
+    public partial class Event
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public User()
+        public Event()
         {
-            this.Events = new HashSet<Event>();
             this.EventRegistrations = new HashSet<EventRegistration>();
             this.SavedEvents = new HashSet<SavedEvent>();
+            this.EventTypes = new HashSet<EventType>();
         }
     
-        public int UserID { get; set; }
-        public string UserEmail { get; set; }
-        public string UserFirstName { get; set; }
-        public string UserLastName { get; set; }
-        public Nullable<System.DateTime> UserStartDate { get; set; }
-        public Nullable<System.DateTime> UserBirthDate { get; set; }
-        public Nullable<System.DateTime> UserEndDate { get; set; }
-        public string UserPhoneNumber { get; set; }
-        public Nullable<int> UserRoleID { get; set; }
-        public string UserHashedPassword { get; set; }
-        public string UserImageURL { get; set; }
+        public int EventID { get; set; }
+        public System.DateTime EventStartTime { get; set; }
+        public System.DateTime EventEndTime { get; set; }
+        public string EventTitle { get; set; }
+        public decimal EventPrice { get; set; }
+        public string EventDescription { get; set; }
+        public int LocationID { get; set; }
+        public string EventImageURL { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Event> Events { get; set; }
+        public virtual Location Location { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<EventRegistration> EventRegistrations { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SavedEvent> SavedEvents { get; set; }
-        public virtual UserRole UserRole { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<EventType> EventTypes { get; set; }
     }
 }

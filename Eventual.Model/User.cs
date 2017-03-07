@@ -10,7 +10,6 @@ namespace Eventual.Model
     {
         public User()
         {
-            this.Events = new HashSet<Event>(); //Events that users can organize
             this.EventRegistrations = new HashSet<EventRegistration>();
             this.SavedEvents = new HashSet<SavedEvent>();
         }
@@ -27,8 +26,6 @@ namespace Eventual.Model
         public string UserHashedPassword { get; set; }
         public string UserImageURL { get; set; }
 
-        //Events that users can organize
-        public virtual ICollection<Event> Events { get; set; }
         public virtual ICollection<EventRegistration> EventRegistrations { get; set; }
         public virtual ICollection<SavedEvent> SavedEvents { get; set; }
         public virtual UserRole UserRole { get; set; }

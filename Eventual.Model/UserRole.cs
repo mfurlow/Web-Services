@@ -13,7 +13,6 @@ namespace Eventual.Model
             //stores all of the users that associated with that role
             this.Users = new HashSet<User>();
         }
-
         public int UserRoleID { get; set; }
         public string UserRoleType { get; set; }
         public virtual ICollection<User> Users { get; set; }

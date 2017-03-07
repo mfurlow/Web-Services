@@ -7,23 +7,31 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Eventtual_Event_Finder
+namespace Eventual.DAL
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class EventType
+    public partial class Location
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public EventType()
+        public Location()
         {
             this.Events = new HashSet<Event>();
         }
     
-        public int EventTypeID { get; set; }
-        public string EventType1 { get; set; }
+        public int LocationID { get; set; }
+        public string LocationStreet1 { get; set; }
+        public string LocationStreet2 { get; set; }
+        public string LocationZipcode { get; set; }
+        public string LocationCity { get; set; }
+        public int StateID { get; set; }
+        public int CountryID { get; set; }
+        public string LocationBuildingName { get; set; }
     
+        public virtual Country Country { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Event> Events { get; set; }
+        public virtual State State { get; set; }
     }
 }

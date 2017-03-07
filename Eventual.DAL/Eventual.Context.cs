@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Eventtual_Event_Finder
+namespace Eventual.DAL
 {
     using System;
     using System.Data.Entity;
@@ -308,13 +308,13 @@ namespace Eventtual_Event_Finder
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spGetAllEventsWithEventTypes_Result>("spGetAllEventsWithEventTypes");
         }
     
-        public virtual ObjectResult<spGetAllEventsWithEventTypesForSpecificEvent_Result> spGetAllEventsWithEventTypesForSpecificEvent(Nullable<int> eventId)
+        public virtual int spGetAllEventsWithEventTypesForSpecificEvent(Nullable<int> eventId)
         {
             var eventIdParameter = eventId.HasValue ?
                 new ObjectParameter("EventId", eventId) :
                 new ObjectParameter("EventId", typeof(int));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spGetAllEventsWithEventTypesForSpecificEvent_Result>("spGetAllEventsWithEventTypesForSpecificEvent", eventIdParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spGetAllEventsWithEventTypesForSpecificEvent", eventIdParameter);
         }
     
         public virtual ObjectResult<spGetAllPastRegisteredEventsForSpecificUser_Result> spGetAllPastRegisteredEventsForSpecificUser(Nullable<int> userID)

@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Eventtual_Event_Finder
+namespace Eventual.DAL
 {
     using System;
     using System.Collections.Generic;

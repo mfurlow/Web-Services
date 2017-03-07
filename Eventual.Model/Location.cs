@@ -27,4 +27,3 @@ namespace Eventual.Model
         public virtual State State { get; set; }
     }
 }
-}

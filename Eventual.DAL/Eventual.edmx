@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="EventFinderDB_DEVModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="EventFinderDB_DEVModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="sysdiagrams">
           <Key>
             <PropertyRef Name="diagram_id" />
@@ -445,7 +445,8 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             <End Role="User" EntitySet="User" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="EventFinderDB_DEVModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -478,11 +479,9 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
           <Property Name="EventTitle" Type="String" MaxLength="24" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="EventPrice" Type="Decimal" Precision="11" Scale="2" Nullable="false" />
           <Property Name="EventDescription" Type="String" MaxLength="2083" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="OrganizerID" Type="Int32" Nullable="false" />
           <Property Name="LocationID" Type="Int32" Nullable="false" />
           <Property Name="EventImageURL" Type="String" MaxLength="2083" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Location" Relationship="Self.FK_Event_LocationID" FromRole="Event" ToRole="Location" />
-          <NavigationProperty Name="User" Relationship="Self.FK_Event_OrganizerID" FromRole="Event" ToRole="User" />
           <NavigationProperty Name="EventRegistrations" Relationship="Self.FK_EventRegistration_EventID" FromRole="Event" ToRole="EventRegistration" />
           <NavigationProperty Name="SavedEvents" Relationship="Self.FK_SavedEvent_EventID" FromRole="Event" ToRole="SavedEvent" />
           <NavigationProperty Name="EventTypes" Relationship="Self.Event_EventType" FromRole="Event" ToRole="EventType" />
@@ -557,7 +556,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
           <Property Name="UserRoleID" Type="Int32" />
           <Property Name="UserHashedPassword" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="UserImageURL" Type="String" MaxLength="2083" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Events" Relationship="Self.FK_Event_OrganizerID" FromRole="User" ToRole="Event" />
           <NavigationProperty Name="EventRegistrations" Relationship="Self.FK_EventRegistration_UserID" FromRole="User" ToRole="EventRegistration" />
           <NavigationProperty Name="SavedEvents" Relationship="Self.FK_SavedEvent_UserID" FromRole="User" ToRole="SavedEvent" />
           <NavigationProperty Name="UserRole" Relationship="Self.FK_User_UserRoleID" FromRole="User" ToRole="UserRole" />
@@ -603,20 +601,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             </Principal>
             <Dependent Role="Event">
               <PropertyRef Name="LocationID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Event_OrganizerID">
-          <End Role="User" Type="Self.User" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Role="Event" Type="Self.Event" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="UserID" />
-            </Principal>
-            <Dependent Role="Event">
-              <PropertyRef Name="OrganizerID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -720,10 +704,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             <End Role="Location" EntitySet="Locations" />
             <End Role="Event" EntitySet="Events" />
           </AssociationSet>
-          <AssociationSet Name="FK_Event_OrganizerID" Association="Self.FK_Event_OrganizerID">
-            <End Role="User" EntitySet="Users" />
-            <End Role="Event" EntitySet="Events" />
-          </AssociationSet>
           <AssociationSet Name="FK_EventRegistration_EventID" Association="Self.FK_EventRegistration_EventID">
             <End Role="Event" EntitySet="Events" />
             <End Role="EventRegistration" EntitySet="EventRegistrations" />
@@ -812,7 +792,7 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             <Parameter Name="userPassword" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="spDropEvent">
-          <Parameter Name="EventID" Mode="In" Type="Int32" />
+            <Parameter Name="EventID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spDropRegisteredEventWithUserId">
             <Parameter Name="UserID" Mode="In" Type="Int32" />
@@ -823,33 +803,33 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             <Parameter Name="EventID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spDropUser">
-          <Parameter Name="UserID" Mode="In" Type="Int32" />
+            <Parameter Name="UserID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spGetAllCountries" ReturnType="Collection(String)" />
           <FunctionImport Name="spGetAllCurrentRegisteredEventsForSpecificUser" ReturnType="Collection(EventFinderDB_DEVModel.spGetAllCurrentRegisteredEventsForSpecificUser_Result)">
-          <Parameter Name="userID" Mode="In" Type="Int32" />
+            <Parameter Name="userID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spGetAllEventsWithEventTypes" ReturnType="Collection(EventFinderDB_DEVModel.spGetAllEventsWithEventTypes_Result)" />
-          <FunctionImport Name="spGetAllEventsWithEventTypesForSpecificEvent" ReturnType="Collection(EventFinderDB_DEVModel.spGetAllEventsWithEventTypesForSpecificEvent_Result)">
-          <Parameter Name="EventId" Mode="In" Type="Int32" />
+          <FunctionImport Name="spGetAllEventsWithEventTypesForSpecificEvent">
+            <Parameter Name="EventId" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spGetAllPastRegisteredEventsForSpecificUser" ReturnType="Collection(EventFinderDB_DEVModel.spGetAllPastRegisteredEventsForSpecificUser_Result)">
-          <Parameter Name="userID" Mode="In" Type="Int32" />
+            <Parameter Name="userID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spGetAllSavedEventsForSpecificUser" ReturnType="Collection(EventFinderDB_DEVModel.spGetAllSavedEventsForSpecificUser_Result)">
-          <Parameter Name="userID" Mode="In" Type="Int32" />
+            <Parameter Name="userID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spGetAllStates" ReturnType="Collection(String)" />
           <FunctionImport Name="spGetAllUsers" ReturnType="Collection(EventFinderDB_DEVModel.spGetAllUsers_Result)" />
           <FunctionImport Name="spGetSALT" ReturnType="Collection(String)" />
           <FunctionImport Name="spGetSpecificEventsWithEventTypes" ReturnType="Collection(EventFinderDB_DEVModel.spGetSpecificEventsWithEventTypes_Result)">
-          <Parameter Name="EventId" Mode="In" Type="Int32" />
+            <Parameter Name="EventId" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spGetSpecificUserWithUserEmail" ReturnType="Collection(EventFinderDB_DEVModel.spGetSpecificUserWithUserEmail_Result)">
-          <Parameter Name="UserEmail" Mode="In" Type="String" />
+            <Parameter Name="UserEmail" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="spGetSpecificUserWithUserID" ReturnType="Collection(EventFinderDB_DEVModel.spGetSpecificUserWithUserID_Result)">
-          <Parameter Name="UserID" Mode="In" Type="Int32" />
+            <Parameter Name="UserID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spJoinRegisteredEventUserId">
             <Parameter Name="userID" Mode="In" Type="Int32" />
@@ -860,17 +840,17 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             <Parameter Name="UserHashedPassword" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="spLookUpCountry" ReturnType="Collection(String)">
-          <Parameter Name="CountryID" Mode="In" Type="Int32" />
+            <Parameter Name="CountryID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spLookUpState" ReturnType="Collection(String)">
-          <Parameter Name="StateID" Mode="In" Type="Int32" />
+            <Parameter Name="StateID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spSaveEventUserId">
             <Parameter Name="userID" Mode="In" Type="Int32" />
             <Parameter Name="eventID" Mode="In" Type="Int32" />
           </FunctionImport>
           <FunctionImport Name="spSearchEvents">
-          <Parameter Name="Keyword" Mode="In" Type="String" />
+            <Parameter Name="Keyword" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="spUpdateUser" ReturnType="Collection(EventFinderDB_DEVModel.spUpdateUser_Result)">
             <Parameter Name="UserFirstName" Mode="In" Type="String" />
@@ -902,10 +882,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
           <Property Type="Decimal" Name="EventPrice" Nullable="false" Precision="11" Scale="2" />
           <Property Type="String" Name="EventDescription" Nullable="false" MaxLength="2083" />
           <Property Type="String" Name="EventImageURL" Nullable="true" MaxLength="2083" />
-          <Property Type="String" Name="UserEmail" Nullable="false" MaxLength="45" />
-          <Property Type="String" Name="UserFirstName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserLastName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserPhoneNumber" Nullable="true" MaxLength="10" />
           <Property Type="String" Name="LocationBuildingName" Nullable="true" MaxLength="24" />
           <Property Type="String" Name="LocationStreet1" Nullable="false" MaxLength="24" />
           <Property Type="String" Name="LocationStreet2" Nullable="true" MaxLength="24" />
@@ -934,10 +910,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
           <Property Type="Decimal" Name="EventPrice" Nullable="false" Precision="11" Scale="2" />
           <Property Type="String" Name="EventDescription" Nullable="false" MaxLength="2083" />
           <Property Type="String" Name="EventImageURL" Nullable="true" MaxLength="2083" />
-          <Property Type="String" Name="UserEmail" Nullable="false" MaxLength="45" />
-          <Property Type="String" Name="UserFirstName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserLastName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserPhoneNumber" Nullable="true" MaxLength="10" />
           <Property Type="String" Name="LocationBuildingName" Nullable="true" MaxLength="24" />
           <Property Type="String" Name="LocationStreet1" Nullable="false" MaxLength="24" />
           <Property Type="String" Name="LocationStreet2" Nullable="true" MaxLength="24" />
@@ -946,26 +918,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
           <Property Type="String" Name="LocationZipcode" Nullable="false" MaxLength="5" />
           <Property Type="String" Name="CountryAbbreviation" Nullable="false" MaxLength="2" />
           <Property Type="Int32" Name="TotalAttendees" Nullable="true" />
-        </ComplexType>
-        <ComplexType Name="spGetAllEventsWithEventTypesForSpecificEvent_Result">
-          <Property Type="Int32" Name="EventId" Nullable="false" />
-          <Property Type="DateTime" Name="EventStartTime" Nullable="false" Precision="23" />
-          <Property Type="DateTime" Name="EventEndTime" Nullable="false" Precision="23" />
-          <Property Type="String" Name="EventTitle" Nullable="false" MaxLength="24" />
-          <Property Type="Decimal" Name="EventPrice" Nullable="false" Precision="11" Scale="2" />
-          <Property Type="String" Name="EventDescription" Nullable="false" MaxLength="2083" />
-          <Property Type="String" Name="EventImageURL" Nullable="true" MaxLength="2083" />
-          <Property Type="String" Name="UserEmail" Nullable="false" MaxLength="45" />
-          <Property Type="String" Name="UserFirstName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserLastName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserPhoneNumber" Nullable="true" MaxLength="10" />
-          <Property Type="String" Name="LocationBuildingName" Nullable="true" MaxLength="24" />
-          <Property Type="String" Name="LocationStreet1" Nullable="false" MaxLength="24" />
-          <Property Type="String" Name="LocationStreet2" Nullable="true" MaxLength="24" />
-          <Property Type="String" Name="LocationCity" Nullable="false" MaxLength="20" />
-          <Property Type="String" Name="StateAbbreviation" Nullable="false" MaxLength="2" />
-          <Property Type="String" Name="LocationZipcode" Nullable="false" MaxLength="5" />
-          <Property Type="String" Name="CountryAbbreviation" Nullable="false" MaxLength="2" />
         </ComplexType>
         <ComplexType Name="spGetAllPastRegisteredEventsForSpecificUser_Result">
           <Property Type="Int32" Name="EventID" Nullable="false" />
@@ -1007,10 +959,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
           <Property Type="Decimal" Name="EventPrice" Nullable="false" Precision="11" Scale="2" />
           <Property Type="String" Name="EventDescription" Nullable="false" MaxLength="2083" />
           <Property Type="String" Name="EventImageURL" Nullable="true" MaxLength="2083" />
-          <Property Type="String" Name="UserEmail" Nullable="false" MaxLength="45" />
-          <Property Type="String" Name="UserFirstName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserLastName" Nullable="true" MaxLength="45" />
-          <Property Type="String" Name="UserPhoneNumber" Nullable="true" MaxLength="10" />
           <Property Type="String" Name="LocationBuildingName" Nullable="true" MaxLength="24" />
           <Property Type="String" Name="LocationStreet1" Nullable="false" MaxLength="24" />
           <Property Type="String" Name="LocationStreet2" Nullable="true" MaxLength="24" />
@@ -1220,10 +1168,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
                 <ScalarProperty Name="EventPrice" ColumnName="EventPrice" />
                 <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
                 <ScalarProperty Name="EventImageURL" ColumnName="EventImageURL" />
-                <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
-                <ScalarProperty Name="UserFirstName" ColumnName="UserFirstName" />
-                <ScalarProperty Name="UserLastName" ColumnName="UserLastName" />
-                <ScalarProperty Name="UserPhoneNumber" ColumnName="UserPhoneNumber" />
                 <ScalarProperty Name="LocationBuildingName" ColumnName="LocationBuildingName" />
                 <ScalarProperty Name="LocationStreet1" ColumnName="LocationStreet1" />
                 <ScalarProperty Name="LocationStreet2" ColumnName="LocationStreet2" />
@@ -1267,10 +1211,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
                 <ScalarProperty Name="EventPrice" ColumnName="EventPrice" />
                 <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
                 <ScalarProperty Name="EventImageURL" ColumnName="EventImageURL" />
-                <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
-                <ScalarProperty Name="UserFirstName" ColumnName="UserFirstName" />
-                <ScalarProperty Name="UserLastName" ColumnName="UserLastName" />
-                <ScalarProperty Name="UserPhoneNumber" ColumnName="UserPhoneNumber" />
                 <ScalarProperty Name="LocationBuildingName" ColumnName="LocationBuildingName" />
                 <ScalarProperty Name="LocationStreet1" ColumnName="LocationStreet1" />
                 <ScalarProperty Name="LocationStreet2" ColumnName="LocationStreet2" />
@@ -1282,30 +1222,7 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
-          <FunctionImportMapping FunctionImportName="spGetAllEventsWithEventTypesForSpecificEvent" FunctionName="EventFinderDB_DEVModel.Store.spGetAllEventsWithEventTypesForSpecificEvent">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="EventFinderDB_DEVModel.spGetAllEventsWithEventTypesForSpecificEvent_Result">
-                <ScalarProperty Name="EventId" ColumnName="EventId" />
-                <ScalarProperty Name="EventStartTime" ColumnName="EventStartTime" />
-                <ScalarProperty Name="EventEndTime" ColumnName="EventEndTime" />
-                <ScalarProperty Name="EventTitle" ColumnName="EventTitle" />
-                <ScalarProperty Name="EventPrice" ColumnName="EventPrice" />
-                <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
-                <ScalarProperty Name="EventImageURL" ColumnName="EventImageURL" />
-                <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
-                <ScalarProperty Name="UserFirstName" ColumnName="UserFirstName" />
-                <ScalarProperty Name="UserLastName" ColumnName="UserLastName" />
-                <ScalarProperty Name="UserPhoneNumber" ColumnName="UserPhoneNumber" />
-                <ScalarProperty Name="LocationBuildingName" ColumnName="LocationBuildingName" />
-                <ScalarProperty Name="LocationStreet1" ColumnName="LocationStreet1" />
-                <ScalarProperty Name="LocationStreet2" ColumnName="LocationStreet2" />
-                <ScalarProperty Name="LocationCity" ColumnName="LocationCity" />
-                <ScalarProperty Name="StateAbbreviation" ColumnName="StateAbbreviation" />
-                <ScalarProperty Name="LocationZipcode" ColumnName="LocationZipcode" />
-                <ScalarProperty Name="CountryAbbreviation" ColumnName="CountryAbbreviation" />
-              </ComplexTypeMapping>
-            </ResultMapping>
-          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spGetAllEventsWithEventTypesForSpecificEvent" FunctionName="EventFinderDB_DEVModel.Store.spGetAllEventsWithEventTypesForSpecificEvent" />
           <FunctionImportMapping FunctionImportName="spGetAllPastRegisteredEventsForSpecificUser" FunctionName="EventFinderDB_DEVModel.Store.spGetAllPastRegisteredEventsForSpecificUser">
             <ResultMapping>
               <ComplexTypeMapping TypeName="EventFinderDB_DEVModel.spGetAllPastRegisteredEventsForSpecificUser_Result">
@@ -1362,10 +1279,6 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
                 <ScalarProperty Name="EventPrice" ColumnName="EventPrice" />
                 <ScalarProperty Name="EventDescription" ColumnName="EventDescription" />
                 <ScalarProperty Name="EventImageURL" ColumnName="EventImageURL" />
-                <ScalarProperty Name="UserEmail" ColumnName="UserEmail" />
-                <ScalarProperty Name="UserFirstName" ColumnName="UserFirstName" />
-                <ScalarProperty Name="UserLastName" ColumnName="UserLastName" />
-                <ScalarProperty Name="UserPhoneNumber" ColumnName="UserPhoneNumber" />
                 <ScalarProperty Name="LocationBuildingName" ColumnName="LocationBuildingName" />
                 <ScalarProperty Name="LocationStreet1" ColumnName="LocationStreet1" />
                 <ScalarProperty Name="LocationStreet2" ColumnName="LocationStreet2" />

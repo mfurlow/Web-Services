@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="APP_SETTINGS.cs" />
     <Compile Include="Country.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="EventRegistration.cs" />
@@ -67,6 +68,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Eventual.DAL\Eventual.DAL.csproj">
+      <Project>{b949d5a9-b687-493f-877a-503fe69c4517}</Project>
+      <Name>Eventual.DAL</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

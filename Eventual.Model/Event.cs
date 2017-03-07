@@ -15,21 +15,34 @@ namespace Eventual.Model
             this.EventTypes = new HashSet<EventType>();
         }
 
+        public Event(int eventID, DateTime eventStartTime, DateTime eventEndTime, string eventTitle, decimal eventPrice,
+            string eventDescription, int locationID, string eventImageURL, Location location,  ICollection<EventRegistration> eventRegistrations, 
+            ICollection<SavedEvent> savedEvents, ICollection<EventType> eventTypes)
+        {
+            EventID = eventID;
+            EventStartTime = eventStartTime;
+            EventEndTime = eventEndTime;
+            EventTitle = eventTitle;
+            EventPrice = eventPrice;
+            EventDescription = eventDescription;
+            LocationID = locationID;
+            EventImageURL = eventImageURL;
+            Location = location;
+            EventRegistrations = eventRegistrations;
+            SavedEvents = savedEvents;
+            EventTypes = eventTypes;   
+        }
+
         public int EventID { get; set; }
         public System.DateTime EventStartTime { get; set; }
         public System.DateTime EventEndTime { get; set; }
         public string EventTitle { get; set; }
         public decimal EventPrice { get; set; }
         public string EventDescription { get; set; }
-
-        public int OrganizerID { get; set; }
         public int LocationID { get; set; }
         public string EventImageURL { get; set; }
 
         public virtual Location Location { get; set; }
-
-        //Organizer associated with that event
-        public virtual User User { get; set; }
 
         public virtual ICollection<EventRegistration> EventRegistrations { get; set; }
 
