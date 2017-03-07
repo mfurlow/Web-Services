@@ -18,9 +18,19 @@ namespace Eventual_WebAPI.Controllers
         private EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
 
         // GET: api/Users
-        public IQueryable<User> GetUsers()
+        public List<Eventual.Model.User> GetUsers()
         {
-            return db.Users;
+            var temp = db.Users.ToList();
+
+            List<Eventual.Model.User> users = new List<Eventual.Model.User>();
+
+            //casts each user as an instance of an Eventual.Model.User
+            foreach (var item in temp)
+            {
+                users.Add(ConvertModels.ConvertEntityToModel.UserEntityToUserModel(item));
+            }
+
+            return users;
         }
 
         // GET: api/Users/5
@@ -72,18 +82,19 @@ namespace Eventual_WebAPI.Controllers
         }
 
         // POST: api/Users
-        [ResponseType(typeof(User))]
-        public async Task<IHttpActionResult> PostUser(User user)
+        [ResponseType(typeof(Eventual.Model.User))]
+        public async Task<IHttpActionResult> PostUser(Eventual.Model.User user)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Users.Add(user);
+            Eventual.DAL.User DALUser = ConvertModels.ConvertModelToEntity.UserModelToUserEntity(user);
+
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = user.UserID }, user);
+            return CreatedAtRoute("DefaultApi", new { id = DALUser.UserID }, DALUser);
         }
 
         // DELETE: api/Users/5
