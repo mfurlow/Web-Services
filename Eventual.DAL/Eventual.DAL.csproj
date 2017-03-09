@@ -109,6 +109,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Eventual.edmx</DependentUpon>
     </Compile>
+    <Compile Include="EventualAPI.cs" />
     <Compile Include="Location.cs">
       <DependentUpon>Eventual.tt</DependentUpon>
     </Compile>

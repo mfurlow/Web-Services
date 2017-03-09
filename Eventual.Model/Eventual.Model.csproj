@@ -84,6 +84,7 @@
     <Compile Include="APP_SETTINGS.cs" />
     <Compile Include="Country.cs" />
     <Compile Include="Event.cs" />
+    <Compile Include="EventAPI.cs" />
     <Compile Include="EventRegistration.cs" />
     <Compile Include="EventType.cs" />
     <Compile Include="Location.cs" />

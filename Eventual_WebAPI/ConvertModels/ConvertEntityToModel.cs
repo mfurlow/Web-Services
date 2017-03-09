@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Eventual.DAL;
 using Eventual.Model;
+using System.Data.Objects;
 
 namespace Eventual_WebAPI.ConvertModels
 {
@@ -12,22 +13,22 @@ namespace Eventual_WebAPI.ConvertModels
     {
 
         //converts event to event model
-        public static Eventual.Model.Event EventEntityToEventModel(Eventual.DAL.Event e)
+        public static Eventual.Model.Event EventEntityToEventModel(Eventual.DAL.Event event1)
         {
             Eventual.Model.Event result = new Eventual.Model.Event
             {
-                EventID = e.EventID,
-                EventStartTime = e.EventStartTime,
-                EventEndTime = e.EventEndTime,
-                EventTitle = e.EventTitle,
-                EventPrice = e.EventPrice,
-                EventDescription = e.EventDescription,
-                LocationID = e.LocationID,
-                EventImageURL = e.EventImageURL,
-                Location = LocationEntityToLocationModel(e.Location),
-                EventRegistrations = EventRegistrationsEntityToEventRegistrationsModel(e.EventRegistrations),
-                SavedEvents = SavedEventsEntityToSavedEventsModel(e.SavedEvents),
-                EventTypes = EventTypesEntityToEventTypesModel(e.EventTypes)
+                EventID = event1.EventID,
+                EventStartTime = event1.EventStartTime,
+                EventEndTime = event1.EventEndTime,
+                EventTitle = event1.EventTitle,
+                EventPrice = event1.EventPrice,
+                EventDescription = event1.EventDescription,
+                LocationID = event1.LocationID,
+                EventImageURL = event1.EventImageURL,
+                Location = LocationEntityToLocationModel(event1.Location),
+                EventRegistrations = EventRegistrationsEntityToEventRegistrationsModel(event1.EventRegistrations),
+                SavedEvents = SavedEventsEntityToSavedEventsModel(event1.SavedEvents),
+                EventTypes = EventTypesEntityToEventTypesModel(event1.EventTypes)
             };
 
             return result;
@@ -53,9 +54,9 @@ namespace Eventual_WebAPI.ConvertModels
         {
             ICollection<Eventual.Model.EventRegistration> result = new List<Eventual.Model.EventRegistration>();
 
-            foreach (Eventual.DAL.EventRegistration er in eventRegistration)
+            foreach (Eventual.DAL.EventRegistration item in eventRegistration)
             {
-                result.Add(EventRegistrationEntityToEventRegistrationModel(er));
+                result.Add(EventRegistrationEntityToEventRegistrationModel(item));
             }
 
             return result;
@@ -68,9 +69,8 @@ namespace Eventual_WebAPI.ConvertModels
             {
                 UserID = eventRegistration.UserID,
                 EventID = eventRegistration.EventID,
-                EventRegistrationDate = eventRegistration.EventRegistrationDate,
-                Event = EventEntityToEventModel(eventRegistration.Event),
-                User = UserEntityToUserModel(eventRegistration.User)
+                EventRegistrationDate = eventRegistration.EventRegistrationDate, 
+           
             };
 
             return result;
@@ -81,11 +81,10 @@ namespace Eventual_WebAPI.ConvertModels
         {
             Eventual.Model.SavedEvent result = new Eventual.Model.SavedEvent
             {
-                UserID = savedEvent.UserID,
                 EventID = savedEvent.EventID,
-                DateOfSavingEvent = savedEvent.DateOfSavingEvent,
-                Event = EventEntityToEventModel(savedEvent.Event),
-                User = UserEntityToUserModel(savedEvent.User)
+                UserID  = savedEvent.UserID,
+                User    = UserEntityToUserModel(savedEvent.User),
+                Event   = EventEntityToEventModel(savedEvent.Event)
             };
 
             return result;
@@ -96,7 +95,7 @@ namespace Eventual_WebAPI.ConvertModels
         {
             Eventual.Model.EventType result = new Eventual.Model.EventType
             {
-                EventTypeID = eventType.EventTypeID,
+                EventTypeID   = eventType.EventTypeID, 
                 EventTypeName = eventType.EventType1
             };
 
@@ -107,42 +106,39 @@ namespace Eventual_WebAPI.ConvertModels
         //converts EventType to EventType Model
         public static ICollection<Eventual.Model.EventType> EventTypesEntityToEventTypesModel(ICollection<Eventual.DAL.EventType> eventType)
         {
-            ICollection<Eventual.Model.EventType> result = new List<Eventual.Model.EventType>();
+            ICollection < Eventual.Model.EventType > result = new List<Eventual.Model.EventType>();
 
-            foreach (Eventual.DAL.EventType et in eventType)
+            foreach (var item in eventType)
             {
-                result.Add(EventTypeEntityToEventTypeModel(et));
-            }
+                result.Add(EventTypeEntityToEventTypeModel(item));
 
+            }
+        
             return result;
         }
 
         //converts Location to Location Model
-        public static Eventual.Model.Location EventTypeEntityToEventTypeModel(Eventual.DAL.Location location)
+        public static Eventual.Model.Location LocationEntityToLocationModel(Eventual.DAL.Location location)
         {
             Eventual.Model.Location result = new Eventual.Model.Location
             {
-                LocationID           = location.LocationID,
-                LocationStreet1      = location.LocationStreet1,
-                LocationStreet2      = location.LocationStreet2,
-                LocationCity         = location.LocationCity,
-                LocationZipcode      = location.LocationZipcode,
+                LocationID = location.LocationID,
                 LocationBuildingName = location.LocationBuildingName,
-                StateID              = location.StateID,
-                CountryID            = location.CountryID,
-                State                = StateEntityToStateModel(location.State),
-                Country              = CountryEntityToCountryModel(location.Country)                
+                LocationStreet1 = location.LocationStreet1,
+                LocationStreet2 = location.LocationStreet2,
+                LocationCity    = location.LocationCity,
+                LocationZipcode = location.LocationZipcode
             };
 
             return result;
         }
 
         //converts SavedEvent to SavedEvent Model
-        public static ICollection<Eventual.Model.SavedEvent> SavedEventsEntityToSavedEventsModel(ICollection<Eventual.DAL.SavedEvent> savedEvents)
+        public static ICollection<Eventual.Model.SavedEvent> SavedEventsEntityToSavedEventsModel(ICollection<Eventual.DAL.SavedEvent> savedEvent)
         {
-            ICollection<Eventual.Model.SavedEvent> result = new List<Eventual.Model.SavedEvent>();
-
-            foreach (Eventual.DAL.SavedEvent item in savedEvents )
+            List<Eventual.Model.SavedEvent> result = new List<Eventual.Model.SavedEvent>();
+            
+            foreach(var item in savedEvent)
             {
                 result.Add(SavedEventEntityToSavedEventModel(item));
             }
@@ -155,8 +151,8 @@ namespace Eventual_WebAPI.ConvertModels
         {
             Eventual.Model.State result = new Eventual.Model.State
             {
-                StateAbbreviation = state.StateAbbreviation,
                 StateID = state.StateID,
+                StateAbbreviation = state.StateAbbreviation,
                 StateLongName = state.StateLongName
             };
 
@@ -168,25 +164,22 @@ namespace Eventual_WebAPI.ConvertModels
         {
             Eventual.Model.User result = new Eventual.Model.User
             {
-                UserID = user.UserID,
                 UserBirthDate = user.UserBirthDate,
-                UserStartDate = user.UserStartDate,
                 UserEmail = user.UserEmail,
                 UserEndDate = user.UserEndDate,
                 UserFirstName = user.UserFirstName,
-                UserLastName = user.UserLastName,
+                UserStartDate = user.UserStartDate,
                 UserHashedPassword = user.UserHashedPassword,
+                UserID = user.UserID,
                 UserImageURL = user.UserImageURL,
+                UserLastName = user.UserLastName,
                 UserPhoneNumber = user.UserPhoneNumber,
-                UserRoleID = user.UserRoleID,
                 UserRole = UserRoleEntityToUserRoleModel(user.UserRole),
-                EventRegistrations = EventRegistrationsEntityToEventRegistrationsModel(user.EventRegistrations),
-                SavedEvents = SavedEventsEntityToSavedEventsModel(user.SavedEvents)
+                UserRoleID = user.UserRoleID
             };
 
             return result;
         }
-
 
         //converts User to UserRole Model
         public static Eventual.Model.UserRole UserRoleEntityToUserRoleModel(Eventual.DAL.UserRole userRole)
@@ -200,24 +193,116 @@ namespace Eventual_WebAPI.ConvertModels
             return result;
         }
 
-
-        public static Eventual.Model.Location LocationEntityToLocationModel(Eventual.DAL.Location location)
+        public static List<Eventual.Model.EventAPI> EventAPIEntityToEventAPIModel(List<spGetAllSavedEventsForSpecificUser_Result> savedEvents)
         {
-            Eventual.Model.Location result = new Eventual.Model.Location
+            List<Eventual.Model.EventAPI> result = new List<Eventual.Model.EventAPI>();
+
+            foreach (var item in savedEvents)
             {
-                LocationID = location.LocationID,
-                LocationBuildingName = location.LocationBuildingName,
-                LocationCity = location.LocationCity,
-                LocationStreet1 = location.LocationStreet1,
-                LocationStreet2 = location.LocationStreet2,
-                LocationZipcode = location.LocationZipcode,
-                CountryID = location.CountryID,
-                StateID = location.StateID,
-                Country = CountryEntityToCountryModel(location.Country),
-                State = StateEntityToStateModel(location.State),
-            };
+                result.Add(EventAPIEntityToEventAPIModel(item));
+            }
+            return result;
+        }
+
+        public static List<Eventual.Model.EventAPI> EventAPIEntityToEventAPIModel(List<spGetAllCurrentRegisteredEventsForSpecificUser_Result> currentEvents)
+        {
+            List<Eventual.Model.EventAPI> result = new List<Eventual.Model.EventAPI>();
+
+            foreach (var item in currentEvents)
+            {
+                result.Add(EventAPIEntityToEventAPIModel(item));
+            }
 
             return result;
+        }
+
+        public static List<Eventual.Model.EventAPI> EventAPIEntityToEventAPIModel(List<spGetAllPastRegisteredEventsForSpecificUser_Result> pastEvents)
+        {
+            List<Eventual.Model.EventAPI> result = new List<Eventual.Model.EventAPI>();
+
+            foreach (var item in pastEvents)
+            {
+                result.Add(EventAPIEntityToEventAPIModel(item));
+            }
+
+            return result;
+        }
+        //converts Event to spGetAllSavedEventsForSpecificUser_Result
+        public static Eventual.Model.EventAPI EventAPIEntityToEventAPIModel(spGetAllSavedEventsForSpecificUser_Result saved)
+        {
+            EventAPI eventAPI = null;
+            if (saved != null)
+            {
+                eventAPI = new EventAPI
+                {
+                    EventID = saved.EventID,
+                    EventEndTime = saved.EventEndTime,
+                    EventStartTime = saved.EventStartTime,
+                    EventImageURL = saved.EventImageURL,
+                    EventPrice = saved.EventPrice,
+                    EventTitle = saved.EventTitle,
+                    LocationCity = saved.LocationCity,
+                    LocationStreet1 = saved.LocationStreet1,
+                    StateAbbreviation = saved.StateAbbreviation,
+                    UserID = saved.UserID
+                };
+
+            }
+
+            return eventAPI;
+        }
+
+
+        //converts Event to spGetAllCurrentRegisteredEventsForSpecificUser_Result
+        public static Eventual.Model.EventAPI EventAPIEntityToEventAPIModel(spGetAllCurrentRegisteredEventsForSpecificUser_Result current)
+        {
+            EventAPI eventAPI = null;
+
+            if (current != null)
+            {
+                eventAPI = new EventAPI
+                {
+                    EventID = current.EventID,
+                    EventEndTime = current.EventEndTime,
+                    EventStartTime = current.EventStartTime,
+                    EventImageURL = current.EventImageURL,
+                    EventPrice = current.EventPrice,
+                    EventTitle = current.EventTitle,
+                    LocationCity = current.LocationCity,
+                    LocationStreet1 = current.LocationStreet1,
+                    StateAbbreviation = current.StateAbbreviation,
+                    UserID = current.UserID
+                };
+
+            }
+
+            return eventAPI;
+        }
+
+
+        //converts Event to spGetAllCurrentRegisteredEventsForSpecificUser_Result
+        public static Eventual.Model.EventAPI EventAPIEntityToEventAPIModel(spGetAllPastRegisteredEventsForSpecificUser_Result past)
+        {
+            EventAPI eventAPI = null;
+
+            if (past != null)
+            {
+                eventAPI = new EventAPI
+                {
+                    EventID = past.EventID,
+                    EventEndTime = past.EventEndTime,
+                    EventStartTime = past.EventStartTime,
+                    EventImageURL = past.EventImageURL,
+                    EventPrice = past.EventPrice,
+                    EventTitle = past.EventTitle,
+                    LocationCity = past.LocationCity,
+                    LocationStreet1 = past.LocationStreet1,
+                    StateAbbreviation = past.StateAbbreviation,
+                    UserID = past.UserID
+                };
+            }
+
+            return eventAPI;
         }
     }
 }
