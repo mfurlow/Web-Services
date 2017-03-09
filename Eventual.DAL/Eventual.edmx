@@ -862,6 +862,9 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
             <Parameter Name="UserImageURL" Mode="In" Type="String" />
             <Parameter Name="UserID" Mode="In" Type="Int32" />
           </FunctionImport>
+          <FunctionImport Name="GetAllCurrentRegisteredEventsForSpecificUser" EntitySet="Events" ReturnType="Collection(EventFinderDB_DEVModel.Event)">
+            <Parameter Name="userID" Mode="In" Type="Int32" />
+          </FunctionImport>
         </EntityContainer>
         <ComplexType Name="sp_helpdiagramdefinition_Result">
           <Property Type="Int32" Name="version" Nullable="true" />
@@ -1347,6 +1350,7 @@ warning 6002: The table/view 'EventFinderDB_DEV.EventFinderDB_DEV.APP_SETTINGS' 
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetAllCurrentRegisteredEventsForSpecificUser" FunctionName="EventFinderDB_DEVModel.Store.spGetAllCurrentRegisteredEventsForSpecificUser" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

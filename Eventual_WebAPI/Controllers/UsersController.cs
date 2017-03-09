@@ -10,15 +10,17 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Eventual.DAL;
+using System.Data.Objects;
 
 namespace Eventual_WebAPI.Controllers
 {
     public class UsersController : ApiController
     {
         private EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
+        private enum _typeOfEvent { SAVED, CURRENT, PAST };
 
-        // GET: api/Users
-        public List<Eventual.Model.User> GetUsers()
+        // GET: api/Users --> add http response
+        public HttpResponseMessage GetUsers()
         {
             var temp = db.Users.ToList();
 
@@ -30,7 +32,7 @@ namespace Eventual_WebAPI.Controllers
                 users.Add(ConvertModels.ConvertEntityToModel.UserEntityToUserModel(item));
             }
 
-            return users;
+            return Request.CreateResponse(HttpStatusCode.OK, users);
         }
 
         // GET: api/Users/5
@@ -43,6 +45,7 @@ namespace Eventual_WebAPI.Controllers
                 return NotFound();
             }
 
+            db.Entry(user).State = System.Data.Entity.EntityState.Detached;
             return Ok(user);
         }
 
@@ -59,8 +62,6 @@ namespace Eventual_WebAPI.Controllers
             {
                 return BadRequest();
             }
-
-            db.Entry(user).State = EntityState.Modified;
 
             try
             {
@@ -102,12 +103,21 @@ namespace Eventual_WebAPI.Controllers
         public async Task<IHttpActionResult> DeleteUser(int id)
         {
             User user = await db.Users.FindAsync(id);
+
             if (user == null)
             {
                 return NotFound();
             }
 
+            DropRegisteredEvents(id);
+
+            await db.SaveChangesAsync();
+
+            DropSavedEvents(id);
+            await db.SaveChangesAsync();
+                      
             db.Users.Remove(user);
+
             await db.SaveChangesAsync();
 
             return Ok(user);
@@ -125,6 +135,79 @@ namespace Eventual_WebAPI.Controllers
         private bool UserExists(int id)
         {
             return db.Users.Count(e => e.UserID == id) > 0;
+        }
+
+        //Drops all of users saved events
+        private void DropSavedEvents(int id)
+        {
+            //if the user does not exist then don't even bother
+            if (!UserExists(id))
+            {
+                return;
+            }
+
+            var savedEvents = db.spGetAllSavedEventsForSpecificUser(id).ToList();
+ 
+            foreach (var item in savedEvents)
+            {
+                db.spDropSavedEventWithUserID(id, item.EventID);
+            }
+        }
+
+        private void DropRegisteredEvents(int id)
+        {
+            //if the user does not exist then don't even bother
+            if (!UserExists(id))
+            {
+                return;
+            }
+
+            var registeredEvents = db.spGetAllCurrentRegisteredEventsForSpecificUser(id).ToList();
+            var pastEvents       = db.spGetAllPastRegisteredEventsForSpecificUser(id).ToList();
+
+            foreach (var item in registeredEvents)
+            {
+                db.spDropRegisteredEventWithUserId(id, item.EventID);
+            }
+
+            foreach (var item in pastEvents)
+            {
+                db.spDropRegisteredEventWithUserId(id, item.EventID);
+            }
+        }
+
+        //GET: api/Users/5
+        [HttpGet]
+        [ActionName("GetUsersEvents")]
+        [ResponseType(typeof(Dictionary<_typeOfEvent, List<Eventual.Model.EventAPI>>))]
+        public async Task<IHttpActionResult> GetUsersEvents(int id)
+        {
+            User user = await db.Users.FindAsync(id);
+
+            //return a bad request response
+            if (user == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            //current, past, and present events
+            List<Eventual.Model.EventAPI> current = 
+                ConvertModels.ConvertEntityToModel.EventAPIEntityToEventAPIModel(db.spGetAllCurrentRegisteredEventsForSpecificUser(id).ToList());
+            List<Eventual.Model.EventAPI> past =
+                ConvertModels.ConvertEntityToModel.EventAPIEntityToEventAPIModel(db.spGetAllPastRegisteredEventsForSpecificUser(id).ToList());
+            List<Eventual.Model.EventAPI> saved =
+                ConvertModels.ConvertEntityToModel.EventAPIEntityToEventAPIModel(db.spGetAllSavedEventsForSpecificUser(id).ToList());
+
+            //creates a new dictionary of EventAPI's
+            Dictionary<_typeOfEvent, List<Eventual.Model.EventAPI>> userEvents = new Dictionary<_typeOfEvent, List<Eventual.Model.EventAPI>>();
+
+            //stores them in a dictionary
+            userEvents.Add(_typeOfEvent.CURRENT, current);
+            userEvents.Add(_typeOfEvent.PAST, past);
+            userEvents.Add(_typeOfEvent.SAVED, saved);
+
+            //returns an ok with status code
+            return Ok(userEvents);
         }
     }
 }
