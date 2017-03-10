@@ -5,6 +5,8 @@ using System.Web;
 using Eventual.DAL;
 using Eventual.Model;
 using System.Data.Objects;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Eventual_WebAPI.ConvertModels
 {
@@ -184,6 +186,7 @@ namespace Eventual_WebAPI.ConvertModels
 
             return result;
         }
+
 
         //converts User to UserRole Model
         public static Eventual.Model.UserRole UserRoleEntityToUserRoleModel(Eventual.DAL.UserRole userRole)

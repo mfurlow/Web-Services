@@ -11,6 +11,8 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Eventual.DAL;
 using System.Data.Objects;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Eventual_WebAPI.Controllers
 {
@@ -49,6 +51,7 @@ namespace Eventual_WebAPI.Controllers
             return Ok(user);
         }
 
+        //todo implement hashing
         // PUT: api/Users/5
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutUser(int id, User user)
@@ -65,9 +68,17 @@ namespace Eventual_WebAPI.Controllers
 
             try
             {
+                if (user != null && user.UserHashedPassword != null)
+                {           
+                    user.UserHashedPassword = ComputeHash(user.UserHashedPassword, new SHA256CryptoServiceProvider(),
+                        Encoding.ASCII.GetBytes(GetDBSALT()));
+                }
+
                 db.spUpdateUser(user.UserFirstName, user.UserLastName, user.UserEmail, user.UserBirthDate,
-                    user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, user.UserID); 
+                user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, user.UserID);
+
                 await db.SaveChangesAsync();
+                
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -88,6 +99,7 @@ namespace Eventual_WebAPI.Controllers
             return Ok(user);
         }
 
+        //todo implement hashing
         // POST: api/Users
         [ResponseType(typeof(Eventual.Model.User))]
         public async Task<IHttpActionResult> PostUser(Eventual.Model.User user)
@@ -97,6 +109,8 @@ namespace Eventual_WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
+            user.UserHashedPassword = ComputeHash(user.UserHashedPassword, new SHA256CryptoServiceProvider(), 
+                Encoding.ASCII.GetBytes(GetDBSALT()));
             Eventual.DAL.User DALUser = ConvertModels.ConvertModelToEntity.UserModelToUserEntity(user);
             db.spCreateUser(DALUser.UserEmail, DALUser.UserHashedPassword);
             await db.SaveChangesAsync();
@@ -216,10 +230,19 @@ namespace Eventual_WebAPI.Controllers
             return Ok(userEvents);
         }
 
-        //return salt
-        private string GetDBHash()
+        private string GetDBSALT()
         {
             return db.spGetSALT().FirstOrDefault();
+        }
+
+        private string ComputeHash(string input, HashAlgorithm algorithm, byte[] salt)
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+            byte[] saltedInput = new byte[salt.Length + inputBytes.Length];
+            salt.CopyTo(saltedInput, 0);
+            inputBytes.CopyTo(saltedInput, salt.Length);
+            byte[] hashedBytes = algorithm.ComputeHash(saltedInput);
+            return BitConverter.ToString(hashedBytes).Replace("-", string.Empty);
         }
     }
 }
