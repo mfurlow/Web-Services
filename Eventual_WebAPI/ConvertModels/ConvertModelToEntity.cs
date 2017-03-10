@@ -190,12 +190,17 @@ namespace Eventual_WebAPI.ConvertModels
         //converts User to UserRole Model
         public static Eventual.DAL.UserRole UserRoleModelToUserRoleEntity(Eventual.Model.UserRole userRole)
         {
-            Eventual.DAL.UserRole result = new Eventual.DAL.UserRole
+            Eventual.DAL.UserRole result = null;
+            if (userRole != null)
             {
-                UserRoleID = userRole.UserRoleID,
-                UserRoleType = userRole.UserRoleType
-            };
 
+                result = new Eventual.DAL.UserRole
+                {
+                    UserRoleID = userRole.UserRoleID,
+                    UserRoleType = userRole.UserRoleType
+                };
+            }
+            
             return result;
         }
 

@@ -26,8 +26,8 @@ namespace Eventual_WebAPI.ConvertModels
                 LocationID = event1.LocationID,
                 EventImageURL = event1.EventImageURL,
                 Location = LocationEntityToLocationModel(event1.Location),
-                EventRegistrations = EventRegistrationsEntityToEventRegistrationsModel(event1.EventRegistrations),
-                SavedEvents = SavedEventsEntityToSavedEventsModel(event1.SavedEvents),
+                //EventRegistrations = EventRegistrationsEntityToEventRegistrationsModel(event1.EventRegistrations),
+                //SavedEvents = SavedEventsEntityToSavedEventsModel(event1.SavedEvents),
                 EventTypes = EventTypesEntityToEventTypesModel(event1.EventTypes)
             };
 
@@ -127,7 +127,11 @@ namespace Eventual_WebAPI.ConvertModels
                 LocationStreet1 = location.LocationStreet1,
                 LocationStreet2 = location.LocationStreet2,
                 LocationCity    = location.LocationCity,
-                LocationZipcode = location.LocationZipcode
+                LocationZipcode = location.LocationZipcode,
+                StateID         = location.StateID,
+                CountryID       = location.CountryID,
+                State           = StateEntityToStateModel(location.State),               
+                Country         = CountryEntityToCountryModel(location.Country) 
             };
 
             return result;

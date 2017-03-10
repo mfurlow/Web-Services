@@ -16,7 +16,7 @@ namespace Eventual_WebAPI.Controllers
 {
     public class UsersController : ApiController
     {
-        private EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
+        private readonly EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
         private enum _typeOfEvent { SAVED, CURRENT, PAST };
 
         // GET: api/Users --> add http response
@@ -65,6 +65,8 @@ namespace Eventual_WebAPI.Controllers
 
             try
             {
+                db.spUpdateUser(user.UserFirstName, user.UserLastName, user.UserEmail, user.UserBirthDate,
+                    user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, user.UserID); 
                 await db.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -78,8 +80,12 @@ namespace Eventual_WebAPI.Controllers
                     throw;
                 }
             }
+            catch (System.Data.SqlClient.SqlException sqlEx)
+            {
+                return BadRequest(sqlEx.Message);
+            }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Ok(user);
         }
 
         // POST: api/Users
@@ -92,7 +98,7 @@ namespace Eventual_WebAPI.Controllers
             }
 
             Eventual.DAL.User DALUser = ConvertModels.ConvertModelToEntity.UserModelToUserEntity(user);
-
+            db.spCreateUser(DALUser.UserEmail, DALUser.UserHashedPassword);
             await db.SaveChangesAsync();
 
             return CreatedAtRoute("DefaultApi", new { id = DALUser.UserID }, DALUser);
@@ -208,6 +214,12 @@ namespace Eventual_WebAPI.Controllers
 
             //returns an ok with status code
             return Ok(userEvents);
+        }
+
+        //return salt
+        private string GetDBHash()
+        {
+            return db.spGetSALT().FirstOrDefault();
         }
     }
 }

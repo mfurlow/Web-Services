@@ -8,12 +8,12 @@ namespace Eventual.Model
 {
     public class Event
     { 
-        public Event()
-        {
-            this.EventRegistrations = new HashSet<EventRegistration>();
-            this.SavedEvents = new HashSet<SavedEvent>();
-            this.EventTypes = new HashSet<EventType>();
-        }
+        //public Event()
+        //{
+        //    this.EventRegistrations = new HashSet<EventRegistration>();
+        //    this.SavedEvents = new HashSet<SavedEvent>();
+        //    this.EventTypes = new HashSet<EventType>();
+        //}
 
         public int EventID { get; set; }
         public System.DateTime EventStartTime { get; set; }
