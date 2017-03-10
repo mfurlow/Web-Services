@@ -16,6 +16,7 @@ using System.Text;
 
 namespace Eventual_WebAPI.Controllers
 {
+    [RoutePrefix("api/users")]
     public class UsersController : ApiController
     {
         private readonly EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
@@ -99,14 +100,19 @@ namespace Eventual_WebAPI.Controllers
             return Ok(user);
         }
 
-        //todo implement hashing
+        //TODO - unique key constraint for password
         // POST: api/Users
         [ResponseType(typeof(Eventual.Model.User))]
-        public async Task<IHttpActionResult> PostUser(Eventual.Model.User user)
+        public async Task<IHttpActionResult> SignUpUser(Eventual.Model.User user)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }
+
+            if (db.Users.Count(u => u.UserEmail == user.UserEmail) > 0)
+            {
+                return BadRequest("Please login.");
             }
 
             user.UserHashedPassword = ComputeHash(user.UserHashedPassword, new SHA256CryptoServiceProvider(), 
@@ -174,6 +180,59 @@ namespace Eventual_WebAPI.Controllers
             }
         }
 
+        [HttpDelete]
+        [Route("DropSavedEvent/{userID}/{savedEvent}")]
+        public HttpResponseMessage DropSavedEvent([FromUri]int userID, [FromUri]int savedEvent)
+        {
+            var temp = db.Users.ToList();
+
+            if (!UserExists(userID) || !SavedEventExists(userID, savedEvent))
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
+            db.spDropSavedEventWithUserID(userID, savedEvent);
+
+            return Request.CreateResponse(HttpStatusCode.OK, 
+                db.spGetAllSavedEventsForSpecificUser(userID));
+        }
+
+        [HttpDelete]
+        [Route("DropCurrentEvent/{userID}/{currentEvent}")]
+        public HttpResponseMessage DropCurrentEvent([FromUri]int userID, [FromUri]int currentEvent)
+        {
+
+            var temp = db.Users.ToList();
+
+            if (!UserExists(userID) || !CurrentEventExists(userID, currentEvent))
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
+            db.spDropRegisteredEventWithUserId(userID, currentEvent);
+
+            return Request.CreateResponse(HttpStatusCode.OK,
+                db.spGetAllCurrentRegisteredEventsForSpecificUser(userID));
+        }
+
+        [HttpDelete]
+        [Route("DropPastEvent/{userID}/{pastEvent}")]
+        public HttpResponseMessage DropPastEvent([FromUri]int userID, [FromUri]int pastEvent)
+        {
+
+            var temp = db.Users.ToList();
+
+            if (!UserExists(userID) || !PastEventExists(userID, pastEvent))
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
+            db.spDropRegisteredEventWithUserId(userID, pastEvent);
+
+            return Request.CreateResponse(HttpStatusCode.OK,
+                db.spGetAllPastRegisteredEventsForSpecificUser(userID));
+        }
+
         private void DropRegisteredEvents(int id)
         {
             //if the user does not exist then don't even bother
@@ -228,6 +287,21 @@ namespace Eventual_WebAPI.Controllers
 
             //returns an ok with status code
             return Ok(userEvents);
+        }
+
+        private bool SavedEventExists(int userID, int savedEventID)
+        {
+            return (db.spGetAllSavedEventsForSpecificUser(userID).ToList().Count(se => se.EventID == savedEventID) > 0);
+        }
+
+        private bool PastEventExists(int userID, int pastEventID)
+        {
+            return (db.spGetAllPastRegisteredEventsForSpecificUser(userID).ToList().Count(se => se.EventID == pastEventID) > 0);
+        }
+
+        private bool CurrentEventExists(int userID, int currentEventID)
+        {
+            return (db.spGetAllCurrentRegisteredEventsForSpecificUser(userID).ToList().Count(se => se.EventID == currentEventID) > 0);
         }
 
         private string GetDBSALT()
