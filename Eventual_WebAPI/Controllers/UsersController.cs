@@ -13,6 +13,7 @@ using Eventual.DAL;
 using System.Data.Objects;
 using System.Security.Cryptography;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace Eventual_WebAPI.Controllers
 {
@@ -92,7 +93,7 @@ namespace Eventual_WebAPI.Controllers
                     throw;
                 }
             }
-            catch (System.Data.SqlClient.SqlException sqlEx)
+            catch (SqlException sqlEx)
             {
                 return BadRequest(sqlEx.Message);
             }
@@ -100,7 +101,6 @@ namespace Eventual_WebAPI.Controllers
             return Ok(user);
         }
 
-        //TODO - unique key constraint for password
         // POST: api/Users
         [ResponseType(typeof(Eventual.Model.User))]
         public async Task<IHttpActionResult> SignUpUser(Eventual.Model.User user)

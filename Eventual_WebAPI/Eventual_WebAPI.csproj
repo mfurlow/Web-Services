@@ -141,7 +141,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\CurrentlyLoggedInUser.cs" />
     <Compile Include="Utility\JsonWebToken.cs" />
+    <Compile Include="Utility\ValidateTokenFilterAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

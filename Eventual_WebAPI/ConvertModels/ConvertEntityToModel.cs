@@ -36,6 +36,8 @@ namespace Eventual_WebAPI.ConvertModels
             return result;
         }
 
+        //public static List<Eventual.Model.SearchResult> (List<Eventual.DAL.spSearchEvents>)
+
 
         //converts country to country model
         public static Eventual.Model.Country CountryEntityToCountryModel(Eventual.DAL.Country country)

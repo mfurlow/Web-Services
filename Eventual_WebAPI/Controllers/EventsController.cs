@@ -10,14 +10,17 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Eventual.DAL;
+using System.Data.SqlClient;
 
 namespace Eventual_WebAPI.Controllers
 {
+    [RoutePrefix("api/events")]
     public class EventsController : ApiController
     {
         private readonly EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
 
         // GET: api/Events
+        [HttpGet]
         public async Task<IHttpActionResult> GetEvents()
         {
             var temp = db.Events.Include("Location.State").Include("Location.Country");
@@ -54,6 +57,33 @@ namespace Eventual_WebAPI.Controllers
             emEvent = ConvertModels.ConvertEntityToModel.EventEntityToEventModel(@event);
 
             return Ok(emEvent);
+        }
+
+
+        [HttpGet]
+        [Route("SearchEvents/{keyword}")]
+        public HttpResponseMessage SearchEvents(string keyword)
+        {
+            if (keyword == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
+            try
+            {
+                //var events = ConvertModels.ConvertEntityToModel.(db.spSearchEvents(keyword));
+                
+                return Request.CreateResponse(Ok());
+
+            }
+            catch (SqlException sqlEx)
+            {
+                return Request.CreateResponse(BadRequest(sqlEx.Message));
+            } 
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(BadRequest(ex.Message));
+            }
         }
 
         //// PUT: api/Events/5
