@@ -14,6 +14,7 @@ using System.Data.Objects;
 using System.Security.Cryptography;
 using System.Text;
 using System.Data.SqlClient;
+using Eventual.Model;
 
 namespace Eventual_WebAPI.Controllers
 {
@@ -22,6 +23,13 @@ namespace Eventual_WebAPI.Controllers
     {
         private readonly EventFinderDB_DEVEntities db = new EventFinderDB_DEVEntities();
         private enum _typeOfEvent { SAVED, CURRENT, PAST };
+
+        private LoginController loginController = new LoginController()
+        {
+            Request = new HttpRequestMessage(),
+            Configuration = new HttpConfiguration()
+        };
+
 
         // GET: api/Users --> add http response
         public HttpResponseMessage GetUsers()
@@ -39,14 +47,43 @@ namespace Eventual_WebAPI.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, users);
         }
 
-        // GET: api/Users/5
-        [ResponseType(typeof(User))]
-        public async Task<IHttpActionResult> GetUser(int id)
+
+        private Eventual.Model.User ValidateUser(string userEmail, string password)
         {
-            User user = await db.Users.FindAsync(id);
+            //regular password
+            LoginCredentials login = new Eventual.Model.LoginCredentials
+            {
+                UserEmail = userEmail,
+                UserPassword = password //regular unhashed password
+            };
+
+            return Utility.Login.LoginValidator(loginController, login);
+        }
+
+    
+        // GET: api/Users/5
+        [ResponseType(typeof(Eventual.Model.User))]
+        [Route("GetUser/{id}/{userEmail}/{password}")]
+        public async Task<IHttpActionResult> GetUser([FromUri]int id, [FromUri]string userEmail,
+            [FromUri]string password)
+        {
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Unauthorized();
+            }
+
+            Eventual.DAL.User user = await db.Users.FindAsync(id);
+            
             if (user == null)
             {
                 return NotFound();
+            }
+            
+            if (user.UserID != u.UserID)
+            {
+                return Unauthorized();
             }
 
             db.Entry(user).State = System.Data.Entity.EntityState.Detached;
@@ -57,31 +94,38 @@ namespace Eventual_WebAPI.Controllers
         // PUT: api/Users/5
         [ResponseType(typeof(void))]
         [HttpPut]
-        public async Task<IHttpActionResult> PutUser(int id, User user)
+        [Route("PutUser/{id}/{userEmail}/{password}")]
+        public async Task<IHttpActionResult> PutUser([FromUri]int id, [FromBody] Eventual.Model.User user,
+            [FromUri]string userEmail, [FromUri]string password)
         {
+            Eventual.Model.User updatedUser = null;
+
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Unauthorized();
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (id != user.UserID)
-            {
-                return BadRequest();
-            }
-
             try
             {
                 if (user != null && user.UserHashedPassword != null)
-                {           
+                {
                     user.UserHashedPassword = ComputeHash(user.UserHashedPassword, new SHA256CryptoServiceProvider(),
                         Encoding.ASCII.GetBytes(GetDBSALT()));
                 }
 
-                db.spUpdateUser(user.UserFirstName, user.UserLastName, user.UserEmail, user.UserBirthDate,
-                user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, user.UserID);
+                //todo --- update the currently logged in user
+                updatedUser = ConvertModels.ConvertEntityToModel.UserEntityToUserModel(db.spUpdateUser(user.UserFirstName, user.UserLastName, user.UserEmail, user.UserBirthDate,
+                user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, id).FirstOrDefault());
 
                 await db.SaveChangesAsync();
-                
+
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -99,13 +143,13 @@ namespace Eventual_WebAPI.Controllers
                 return BadRequest(sqlEx.Message);
             }
 
-            return Ok(user);
+            return Ok(updatedUser);
         }
 
         // POST: api/Users
         [ResponseType(typeof(Eventual.Model.User))]
         [HttpPost]
-        public async Task<IHttpActionResult> SignUpUser(Eventual.Model.User user)
+        public async Task<IHttpActionResult> SignUpUser([FromBody]Eventual.Model.User user)
         {
             if (!ModelState.IsValid)
             {
@@ -117,7 +161,7 @@ namespace Eventual_WebAPI.Controllers
                 return BadRequest("Please login.");
             }
 
-            user.UserHashedPassword = ComputeHash(user.UserHashedPassword, new SHA256CryptoServiceProvider(), 
+            user.UserHashedPassword = ComputeHash(user.UserHashedPassword, new SHA256CryptoServiceProvider(),
                 Encoding.ASCII.GetBytes(GetDBSALT()));
             Eventual.DAL.User DALUser = ConvertModels.ConvertModelToEntity.UserModelToUserEntity(user);
             db.spCreateUser(DALUser.UserEmail, DALUser.UserHashedPassword);
@@ -127,10 +171,11 @@ namespace Eventual_WebAPI.Controllers
         }
 
         // DELETE: api/Users/5
-        [ResponseType(typeof(User))]
-        public async Task<IHttpActionResult> DeleteUser(int id)
+        [ResponseType(typeof(Eventual.Model.User))]
+        public async Task<IHttpActionResult> DeleteUser([FromUri]int id)
         {
-            User user = await db.Users.FindAsync(id);
+            
+            Eventual.DAL.User user = await db.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -143,7 +188,7 @@ namespace Eventual_WebAPI.Controllers
 
             DropSavedEvents(id);
             await db.SaveChangesAsync();
-                      
+
             db.Users.Remove(user);
 
             await db.SaveChangesAsync();
@@ -165,6 +210,11 @@ namespace Eventual_WebAPI.Controllers
             return db.Users.Count(e => e.UserID == id) > 0;
         }
 
+        private bool EventExists(int id)
+        {
+            return db.Events.Count(e => e.EventID == id) > 0;
+        }
+
         //Drops all of users saved events
         private void DropSavedEvents(int id)
         {
@@ -175,7 +225,7 @@ namespace Eventual_WebAPI.Controllers
             }
 
             var savedEvents = db.spGetAllSavedEventsForSpecificUser(id).ToList();
- 
+
             foreach (var item in savedEvents)
             {
                 db.spDropSavedEventWithUserID(id, item.EventID);
@@ -183,9 +233,18 @@ namespace Eventual_WebAPI.Controllers
         }
 
         [HttpDelete]
-        [Route("DropSavedEvent/{userID}/{savedEvent}")]
-        public HttpResponseMessage DropSavedEvent([FromUri]int userID, [FromUri]int savedEvent)
+        [Route("DropSavedEvent/{userID}/{savedEvent}/{userEmail}/{password}")]
+        public HttpResponseMessage DropSavedEvent([FromUri]int userID, [FromUri]int savedEvent,
+            [FromUri]string userEmail, [FromUri]string password)
         {
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            
             var temp = db.Users.ToList();
 
             if (!UserExists(userID) || !SavedEventExists(userID, savedEvent))
@@ -195,45 +254,37 @@ namespace Eventual_WebAPI.Controllers
 
             db.spDropSavedEventWithUserID(userID, savedEvent);
 
-            return Request.CreateResponse(HttpStatusCode.OK, 
+            return Request.CreateResponse(HttpStatusCode.OK,
                 db.spGetAllSavedEventsForSpecificUser(userID));
         }
 
         [HttpDelete]
-        [Route("DropCurrentEvent/{userID}/{currentEvent}")]
-        public HttpResponseMessage DropCurrentEvent([FromUri]int userID, [FromUri]int currentEvent)
+        [Route("DropRegisteredEvent/{userID}/{registeredEvent}/{userEmail}/{password}")]
+        public HttpResponseMessage DropRegisteredEvent([FromUri]int userID, [FromUri]int registeredEvent,
+            [FromUri]string userEmail, [FromUri]string password)
         {
 
             var temp = db.Users.ToList();
 
-            if (!UserExists(userID) || !CurrentEventExists(userID, currentEvent))
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            if (!UserExists(userID) || (!CurrentEventExists(userID, registeredEvent) 
+                && !PastEventExists(userID, registeredEvent)))
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            db.spDropRegisteredEventWithUserId(userID, currentEvent);
+            db.spDropRegisteredEventWithUserId(userID, registeredEvent);
 
             return Request.CreateResponse(HttpStatusCode.OK,
                 db.spGetAllCurrentRegisteredEventsForSpecificUser(userID));
         }
-
-        [HttpDelete]
-        [Route("DropPastEvent/{userID}/{pastEvent}")]
-        public HttpResponseMessage DropPastEvent([FromUri]int userID, [FromUri]int pastEvent)
-        {
-
-            var temp = db.Users.ToList();
-
-            if (!UserExists(userID) || !PastEventExists(userID, pastEvent))
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
-            }
-
-            db.spDropRegisteredEventWithUserId(userID, pastEvent);
-
-            return Request.CreateResponse(HttpStatusCode.OK,
-                db.spGetAllPastRegisteredEventsForSpecificUser(userID));
-        }
+        
 
         private void DropRegisteredEvents(int id)
         {
@@ -244,7 +295,7 @@ namespace Eventual_WebAPI.Controllers
             }
 
             var registeredEvents = db.spGetAllCurrentRegisteredEventsForSpecificUser(id).ToList();
-            var pastEvents       = db.spGetAllPastRegisteredEventsForSpecificUser(id).ToList();
+            var pastEvents = db.spGetAllPastRegisteredEventsForSpecificUser(id).ToList();
 
             foreach (var item in registeredEvents)
             {
@@ -260,19 +311,34 @@ namespace Eventual_WebAPI.Controllers
         //GET: api/Users/5
         [HttpGet]
         [ActionName("GetUsersEvents")]
+        [Route("GetUsersEvents/{id}/{userEmail}/{password}")]
         [ResponseType(typeof(Dictionary<_typeOfEvent, List<Eventual.Model.EventAPI>>))]
-        public async Task<IHttpActionResult> GetUsersEvents(int id)
+        public async Task<IHttpActionResult> GetUsersEvents([FromUri]int id, [FromUri]string userEmail,
+            [FromUri]string password)
         {
-            User user = await db.Users.FindAsync(id);
+            Eventual.DAL.User user = await db.Users.FindAsync(id);
+
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Unauthorized();
+            }
 
             //return a bad request response
             if (user == null)
             {
                 return BadRequest(ModelState);
             }
+            
+            //returns an ok with status code
+            return Ok(GetAllUsersEvents(id));
+        }
 
+        private Dictionary<_typeOfEvent, List<Eventual.Model.EventAPI>> GetAllUsersEvents(int id)
+        {
             //current, past, and present events
-            List<Eventual.Model.EventAPI> current = 
+            List<Eventual.Model.EventAPI> current =
                 ConvertModels.ConvertEntityToModel.EventAPIEntityToEventAPIModel(db.spGetAllCurrentRegisteredEventsForSpecificUser(id).ToList());
             List<Eventual.Model.EventAPI> past =
                 ConvertModels.ConvertEntityToModel.EventAPIEntityToEventAPIModel(db.spGetAllPastRegisteredEventsForSpecificUser(id).ToList());
@@ -287,9 +353,9 @@ namespace Eventual_WebAPI.Controllers
             userEvents.Add(_typeOfEvent.PAST, past);
             userEvents.Add(_typeOfEvent.SAVED, saved);
 
-            //returns an ok with status code
-            return Ok(userEvents);
+            return userEvents;
         }
+
 
         private bool SavedEventExists(int userID, int savedEventID)
         {
@@ -320,5 +386,90 @@ namespace Eventual_WebAPI.Controllers
             byte[] hashedBytes = algorithm.ComputeHash(saltedInput);
             return BitConverter.ToString(hashedBytes).Replace("-", string.Empty);
         }
+
+        //registers users and returns all user events
+        [HttpPost]
+        [Route("RegisterEvent/{userID}/{eventID}/{userEmail}/{password}")]
+        public HttpResponseMessage RegisterEvent([FromUri]int userID, [FromUri]int eventID,
+            [FromUri]string userEmail, [FromUri]string password)
+        {
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            if (CurrentEventExists(userID, eventID) || PastEventExists(userID, eventID))
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Already added event");
+            }
+
+            try
+            {
+                if (!UserExists(userID) || !EventExists(eventID))
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid request");
+                }
+            }
+            catch (SqlException ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            catch (EntityException ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+
+            db.spJoinRegisteredEventUserId(userID, eventID);
+
+            return Request.CreateResponse(HttpStatusCode.OK, GetAllUsersEvents(userID));
+        }
+
+        [HttpPost]
+        [Route("SaveEvent/{userID}/{eventID}/{userEmail}/{password}")]
+        public HttpResponseMessage SaveEvent(int userID, int eventID, string userEmail, string password)
+        {
+            Eventual.Model.User u = ValidateUser(userEmail, password);
+
+            if (u == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            if (SavedEventExists(userID, eventID))
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Already saved event");
+            }
+
+            try
+            {
+                if (!UserExists(userID) || !EventExists(eventID))
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid request");
+                }
+            }
+            catch (SqlException ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            catch (EntityException ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+
+            db.spSaveEventUserId(userID, eventID);
+
+            return Request.CreateResponse(HttpStatusCode.OK, GetAllUsersEvents(userID));
+        }
+
     }
 }

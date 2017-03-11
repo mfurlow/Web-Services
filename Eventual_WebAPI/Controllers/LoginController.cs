@@ -51,21 +51,33 @@ namespace Eventual_WebAPI.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, "Invalid username or password");
             }
 
-            Dictionary<string, object> headers = new Dictionary<string, object>();
-
-            //todo to convert unix time to timestamp string and then expiration two hours from now
-            Dictionary<string, object> claims = new Dictionary<string, object>
+            if (!ArePasswordsEqual(user.UserHashedPassword, login.UserPassword))
             {
-                {"iss", "API.Eventual"},
-                {"iat", ""},
-                {"exp", ""},
-                {"userID", user.UserID.ToString() }
-            };
 
-            string secret = "fuckthisshit";
-            string jwt = new JsonWebToken(secret).GenerateToken(claims, headers);
 
-            return Request.CreateResponse(HttpStatusCode.OK, jwt);
+                return Request.CreateResponse(HttpStatusCode.Unauthorized);
+            }
+
+            db.Entry(user).State = System.Data.Entity.EntityState.Detached;
+
+            //Dictionary<string, object> headers = new Dictionary<string, object>();
+            //todo to convert unix time to timestamp string and then expiration two hours from now
+            //Dictionary<string, object> claims = new Dictionary<string, object>
+            //{
+            //    {"iss", "API.Eventual"},
+            //    {"iat", ""},
+            //    {"exp", ""},
+            //    {"userID", user.UserID.ToString() },
+            //    { "userEmail", user.UserEmail }
+            //};
+
+            //string secret = "fuckthisshit";
+            //string jwt = new JsonWebToken(secret).GenerateToken(claims, headers);
+
+            //returns validated user
+            return Request.CreateResponse(HttpStatusCode.OK, user);
         }
+
+        
     }
 }

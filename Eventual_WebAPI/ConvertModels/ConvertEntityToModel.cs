@@ -215,6 +215,22 @@ namespace Eventual_WebAPI.ConvertModels
             return result;
         }
 
+        //converts User to User Model
+        public static Eventual.Model.User UserEntityToUserModel(Eventual.DAL.spUpdateUser_Result user)
+        {
+            Eventual.Model.User result = new Eventual.Model.User
+            {
+                UserBirthDate = user.UserBirthDate,
+                UserEmail = user.UserEmail,
+                UserFirstName = user.UserFirstName,
+                UserHashedPassword = user.UserHashedPassword,
+                UserImageURL = user.UserImageURL,
+                UserLastName = user.UserLastName,
+                UserPhoneNumber = user.UserPhoneNumber
+            };
+
+            return result;
+        }
 
         //converts User to UserRole Model
         public static Eventual.Model.UserRole UserRoleEntityToUserRoleModel(Eventual.DAL.UserRole userRole)

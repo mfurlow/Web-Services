@@ -4,27 +4,45 @@ using System.Linq;
 using System.Web;
 using Eventual.Model;
 using System.Collections.ObjectModel;
+using System.Security.Principal;
 
 namespace Eventual_WebAPI.Utility
 {
     public static class CurrentlyLoggedInUser
     {
-        public static JsonWebToken AccessToken { get; set; }
-        public static int UserID { get; set; }
-        public static string UserEmail { get; set; }
-        public static string UserFirstName { get; set; }
-        public static string UserLastName { get; set; }
-        public static Nullable<System.DateTime> UserStartDate { get; set; }
-        public static Nullable<System.DateTime> UserBirthDate { get; set; }
-        public static Nullable<System.DateTime> UserEndDate { get; set; }
-        public static string UserPhoneNumber { get; set; }
-        public static Nullable<int> UserRoleID { get; set; }
-        public static string UserHashedPassword { get; set; }
-        public static string UserImageURL { get; set; }
+            private static GenericPrincipal genericPrincipal;
+            private static CustomIdentity customIdentity;
 
-        public static ICollection<EventRegistration> EventRegistrations { get; set; }
-        public static Collection<SavedEvent> SavedEvents { get; set; }
-        public static UserRole UserRole { get; set; }
+
+            public static void SetCurrentUser(string token, string secret, string[] thisUsersRoles)
+            {
+                IDictionary<string, object> decodedToken = new JsonWebToken(secret).Decode(token);
+                var userId = 0;
+
+                string userEmail = decodedToken.ContainsKey("userEmail") ? decodedToken["userEmail"].ToString() : string.Empty;
+
+                if (decodedToken.ContainsKey("userID"))
+                {
+
+                    int.TryParse(decodedToken["userID"].ToString(), out userId);
+                }
+
+                customIdentity = new CustomIdentity(userEmail, userId) { BootstrapContext = token };
+
+                genericPrincipal = new GenericPrincipal(customIdentity, thisUsersRoles);
+
+                //stores custom identity
+                //System.Threading.Thread.CurrentPrincipal = genericPrincipal;
+            }
+
+            public static int UserId => customIdentity?.UserId ?? -1;
+
+            public static string Username => customIdentity == null ? "Anonymous" : customIdentity.Name;
+
+            public static bool IsInRole(string role)
+            {
+                return genericPrincipal != null && genericPrincipal.IsInRole(role);
+            }
+        }
 
     }
-}
