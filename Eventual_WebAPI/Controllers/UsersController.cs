@@ -56,6 +56,7 @@ namespace Eventual_WebAPI.Controllers
         //todo implement hashing
         // PUT: api/Users/5
         [ResponseType(typeof(void))]
+        [HttpPut]
         public async Task<IHttpActionResult> PutUser(int id, User user)
         {
             if (!ModelState.IsValid)
@@ -103,6 +104,7 @@ namespace Eventual_WebAPI.Controllers
 
         // POST: api/Users
         [ResponseType(typeof(Eventual.Model.User))]
+        [HttpPost]
         public async Task<IHttpActionResult> SignUpUser(Eventual.Model.User user)
         {
             if (!ModelState.IsValid)

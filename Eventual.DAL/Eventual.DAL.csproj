@@ -126,6 +126,7 @@
     <Compile Include="SavedEvent.cs">
       <DependentUpon>Eventual.tt</DependentUpon>
     </Compile>
+    <Compile Include="SearchEntity.cs" />
     <Compile Include="spCreateEvent_Result.cs">
       <DependentUpon>Eventual.tt</DependentUpon>
     </Compile>
@@ -154,6 +155,9 @@
       <DependentUpon>Eventual.tt</DependentUpon>
     </Compile>
     <Compile Include="spLoginUser_Result.cs">
+      <DependentUpon>Eventual.tt</DependentUpon>
+    </Compile>
+    <Compile Include="spSearchUser_Result.cs">
       <DependentUpon>Eventual.tt</DependentUpon>
     </Compile>
     <Compile Include="spUpdateUser_Result.cs">

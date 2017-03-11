@@ -434,13 +434,13 @@ namespace Eventual.DAL
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spSaveEventUserId", userIDParameter, eventIDParameter);
         }
     
-        public virtual int spSearchEvents(string keyword)
+        public virtual ObjectResult<spSearchUser_Result> spSearchEvents(string keyword)
         {
             var keywordParameter = keyword != null ?
                 new ObjectParameter("Keyword", keyword) :
                 new ObjectParameter("Keyword", typeof(string));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("spSearchEvents", keywordParameter);
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spSearchUser_Result>("spSearchEvents", keywordParameter);
         }
     
         public virtual ObjectResult<spUpdateUser_Result> spUpdateUser(string userFirstName, string userLastName, string userEmail, Nullable<System.DateTime> userBirthDate, string userPhoneNumber, string userHashedPassword, string userImageURL, Nullable<int> userID)
@@ -478,6 +478,24 @@ namespace Eventual.DAL
                 new ObjectParameter("UserID", typeof(int));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<spUpdateUser_Result>("spUpdateUser", userFirstNameParameter, userLastNameParameter, userEmailParameter, userBirthDateParameter, userPhoneNumberParameter, userHashedPasswordParameter, userImageURLParameter, userIDParameter);
+        }
+    
+        public virtual ObjectResult<Event> GetAllCurrentRegisteredEventsForSpecificUser(Nullable<int> userID)
+        {
+            var userIDParameter = userID.HasValue ?
+                new ObjectParameter("userID", userID) :
+                new ObjectParameter("userID", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Event>("GetAllCurrentRegisteredEventsForSpecificUser", userIDParameter);
+        }
+    
+        public virtual ObjectResult<Event> GetAllCurrentRegisteredEventsForSpecificUser(Nullable<int> userID, MergeOption mergeOption)
+        {
+            var userIDParameter = userID.HasValue ?
+                new ObjectParameter("userID", userID) :
+                new ObjectParameter("userID", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Event>("GetAllCurrentRegisteredEventsForSpecificUser", mergeOption, userIDParameter);
         }
     }
 }

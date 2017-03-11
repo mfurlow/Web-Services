@@ -11,6 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using Eventual.DAL;
 using System.Data.SqlClient;
+using Newtonsoft.Json;
 
 namespace Eventual_WebAPI.Controllers
 {
@@ -71,10 +72,10 @@ namespace Eventual_WebAPI.Controllers
 
             try
             {
-                //var events = ConvertModels.ConvertEntityToModel.(db.spSearchEvents(keyword));
-                
-                return Request.CreateResponse(Ok());
+                List<Eventual.Model.SearchResult> searchEvents = ConvertModels.ConvertEntityToModel.
+                    SearchResultEntitiesToSearchResultModels(db.spSearchEvents(keyword).ToList());
 
+                return Request.CreateResponse(HttpStatusCode.OK, searchEvents);
             }
             catch (SqlException sqlEx)
             {

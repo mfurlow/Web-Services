@@ -36,9 +36,6 @@ namespace Eventual_WebAPI.ConvertModels
             return result;
         }
 
-        //public static List<Eventual.Model.SearchResult> (List<Eventual.DAL.spSearchEvents>)
-
-
         //converts country to country model
         public static Eventual.Model.Country CountryEntityToCountryModel(Eventual.DAL.Country country)
         {
@@ -73,8 +70,7 @@ namespace Eventual_WebAPI.ConvertModels
             {
                 UserID = eventRegistration.UserID,
                 EventID = eventRegistration.EventID,
-                EventRegistrationDate = eventRegistration.EventRegistrationDate, 
-           
+                EventRegistrationDate = eventRegistration.EventRegistrationDate,        
             };
 
             return result;
@@ -115,7 +111,6 @@ namespace Eventual_WebAPI.ConvertModels
             foreach (var item in eventType)
             {
                 result.Add(EventTypeEntityToEventTypeModel(item));
-
             }
         
             return result;
@@ -165,6 +160,37 @@ namespace Eventual_WebAPI.ConvertModels
             };
 
             return result;
+        }
+
+        public static List<Eventual.Model.SearchResult> SearchResultEntitiesToSearchResultModels(List<Eventual.DAL.spSearchUser_Result> result)
+        {
+            List<Eventual.Model.SearchResult> searchResult = new List<Eventual.Model.SearchResult>();
+
+            foreach (var item in result)
+            {
+                searchResult.Add(SearchResultEntityToSearchResultModel(item));
+            }
+          
+            return searchResult;
+        }
+
+        public static Eventual.Model.SearchResult SearchResultEntityToSearchResultModel(Eventual.DAL.spSearchUser_Result result)
+        {
+            Eventual.Model.SearchResult searchResult = new Eventual.Model.SearchResult
+            {
+                EventEndTime = result.EventEndTime,
+                EventID  = result.EventId,
+                EventImageURL = result.EventImageURL,
+                EventPrice = result.EventPrice,
+                EventStartTime = result.EventStartTime,
+                EventTitle = result.EventTitle,
+                LocationBuildingName = result.LocationBuildingName,
+                LocationCity = result.LocationCity,
+                LocationStreet1 = result.LocationStreet1,
+                StateAbbreviation = result.StateAbbreviation, 
+            };
+
+            return searchResult;
         }
 
         //converts User to User Model
