@@ -13,6 +13,7 @@ using Eventual.DAL;
 using System.Data.Objects;
 using System.Security.Cryptography;
 using System.Text;
+using System.Data.SqlClient;
 
 namespace Eventual_WebAPI.Controllers
 {
@@ -55,6 +56,7 @@ namespace Eventual_WebAPI.Controllers
         //todo implement hashing
         // PUT: api/Users/5
         [ResponseType(typeof(void))]
+        [HttpPut]
         public async Task<IHttpActionResult> PutUser(int id, User user)
         {
             if (!ModelState.IsValid)
@@ -92,7 +94,7 @@ namespace Eventual_WebAPI.Controllers
                     throw;
                 }
             }
-            catch (System.Data.SqlClient.SqlException sqlEx)
+            catch (SqlException sqlEx)
             {
                 return BadRequest(sqlEx.Message);
             }
@@ -100,9 +102,9 @@ namespace Eventual_WebAPI.Controllers
             return Ok(user);
         }
 
-        //TODO - unique key constraint for password
         // POST: api/Users
         [ResponseType(typeof(Eventual.Model.User))]
+        [HttpPost]
         public async Task<IHttpActionResult> SignUpUser(Eventual.Model.User user)
         {
             if (!ModelState.IsValid)
