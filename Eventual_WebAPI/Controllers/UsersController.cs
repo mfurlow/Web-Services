@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using Eventual.DAL;
-using System.Data.Objects;
 using System.Security.Cryptography;
 using System.Text;
 using System.Data.SqlClient;
@@ -63,9 +61,9 @@ namespace Eventual_WebAPI.Controllers
     
         // GET: api/Users/5
         [ResponseType(typeof(Eventual.Model.User))]
-        [Route("GetUser/{id}/{userEmail}/{password}")]
-        public async Task<IHttpActionResult> GetUser([FromUri]int id, [FromUri]string userEmail,
-            [FromUri]string password)
+        [Route("GetUser/{id}/{password}/{userEmail}")]
+        public async Task<IHttpActionResult> GetUser([FromUri]int id, [FromUri]string password,
+            [FromUri]string userEmail)
         {
             Eventual.Model.User u = ValidateUser(userEmail, password);
 
@@ -121,8 +119,11 @@ namespace Eventual_WebAPI.Controllers
                 }
 
                 //todo --- update the currently logged in user
-                updatedUser = ConvertModels.ConvertEntityToModel.UserEntityToUserModel(db.spUpdateUser(user.UserFirstName, user.UserLastName, user.UserEmail, user.UserBirthDate,
-                user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, id).FirstOrDefault());
+                db.spUpdateUser(user.UserFirstName, user.UserLastName, user.UserEmail, user.UserBirthDate,
+                user.UserPhoneNumber, user.UserHashedPassword, user.UserImageURL, id).FirstOrDefault();
+
+                updatedUser =
+                ConvertModels.ConvertEntityToModel.UserEntityToUserModel(db.Users.FirstOrDefault(newUser => newUser.UserEmail == userEmail));
 
                 await db.SaveChangesAsync();
 
@@ -143,6 +144,7 @@ namespace Eventual_WebAPI.Controllers
                 return BadRequest(sqlEx.Message);
             }
 
+            updatedUser.UserHashedPassword = password;
             return Ok(updatedUser);
         }
 
@@ -167,7 +169,9 @@ namespace Eventual_WebAPI.Controllers
             db.spCreateUser(DALUser.UserEmail, DALUser.UserHashedPassword);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = DALUser.UserID }, DALUser);
+            Eventual.Model.User newUser = 
+                ConvertModels.ConvertEntityToModel.UserEntityToUserModel(db.Users.FirstOrDefault(u => u.UserEmail == user.UserEmail));
+            return Ok(newUser);
         }
 
         // DELETE: api/Users/5
