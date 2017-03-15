@@ -7,8 +7,19 @@ namespace EventualUnitTest
     public class LoginCredentialsTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public Eventual.Model.LoginCredentials LoginCredentials()
         {
+            Eventual.Model.LoginCredentials login = new Eventual.Model.LoginCredentials();
+            login.UserEmail = "login@email.com";
+            login.UserPassword = "loginpassword";
+            return login;
+        }
+        [TestMethod]
+        public void TestLogin()
+        {
+            Eventual.Model.LoginCredentials login = LoginCredentials();
+            Assert.AreEqual(login.UserEmail, "login@email.com");
+            Assert.AreEqual(login.UserPassword, "loginpassword");
         }
     }
 }
